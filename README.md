@@ -1,4 +1,4 @@
-# Fieldnote Student Records
+# E-learning course analytic system
 
 A Flask application for maintaining student records in MySQL and reviewing aggregate student composition. The directory stores student name, age, registration number, section, year of study, and department. Reports summarize saved rows without drawing conclusions about learning or ability.
 
