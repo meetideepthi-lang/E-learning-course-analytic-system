@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Student directory{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <div><p class="eyebrow">REGISTRAR WORKSPACE <span>/</span> DIRECTORY</p><h1>Student records</h1><p class="heading-copy">Maintain a current directory and review enrollment composition.</p></div>
+  <a class="button button-primary report-cta" href="{{ url_for('report') }}"><span aria-hidden="true">↗</span> Build report</a>
+</section>
+<section class="metric-grid" aria-label="Student summary">
+  <article class="metric metric-dark"><span>Total students</span><strong>{{ '{:,}'.format(metrics.total) }}</strong><small>Saved records</small></article>
+  <article class="metric"><span>Departments</span><strong>{{ '{:,}'.format(metrics.departments) }}</strong><small>Represented</small></article>
+  <article class="metric"><span>Sections</span><strong>{{ '{:,}'.format(metrics.sections) }}</strong><small>Across departments</small></article>
+  <article class="metric"><span>Average age</span><strong>{{ '%.1f'|format(metrics.average_age) if metrics.average_age is not none else '—' }}</strong><small>Descriptive aggregate</small></article>
+</section>
+<section class="workspace-grid">
+  <aside class="form-panel">
+    <div class="panel-heading"><div><p class="eyebrow">NEW RECORD</p><h2>Add a student</h2></div><span class="panel-index">01</span></div>
+    {% if database_ready %}
+    <form action="{{ url_for('create_student') }}" method="post" autocomplete="off">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {% include "student_fields.html" %}
+      <button class="button button-primary button-full" type="submit">Save student <span aria-hidden="true">→</span></button>
+    </form>
+    {% else %}<p class="form-disabled">Student entry becomes available when MySQL connects.</p>{% endif %}
+    <p class="form-footnote"><b>*</b> All fields are required. Registration numbers must be unique.</p>
+  </aside>
+  <section class="records-panel">
+    <div class="panel-heading records-heading">
+      <div><p class="eyebrow">DATABASE RECORDS</p><h2>Directory <span class="count-badge">{{ students|length }}</span></h2></div>
+      <form class="search-form" method="get" action="{{ url_for('index') }}"><label class="visually-hidden" for="record-search">Search records</label><input id="record-search" type="search" name="q" value="{{ query }}" placeholder="Search name, reg. no., department"><button type="submit" aria-label="Search records">⌕</button></form>
+    </div>
+    {% if students %}
+    <div class="table-wrap"><table>
+      <thead><tr><th>Student</th><th>Registration no.</th><th>Department</th><th>Year / section</th><th>Age</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>{% for student in students %}<tr>
+        <td><span class="student-name">{{ student.student_name }}</span><span class="student-sub">{{ student.department }}</span></td>
+        <td><span class="mono">{{ student.registration_number }}</span></td><td>{{ student.department }}</td>
+        <td><span class="year-chip">Y{{ student.study_year }}</span><span class="section-label">{{ student.section }}</span></td><td>{{ student.age }}</td>
+        <td class="row-actions"><a class="action-link" href="{{ url_for('edit_student', student_id=student.student_id) }}">Edit</a><form method="post" action="{{ url_for('delete_student', student_id=student.student_id) }}" onsubmit="return confirm('Delete this student record?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="action-link action-delete" type="submit">Delete</button></form></td>
+      </tr>{% endfor %}</tbody>
+    </table></div>
+    {% elif query %}<div class="empty-state"><span class="empty-mark">⌕</span><h3>No matching records</h3><p>Try a different name, registration number, section, or department.</p><a href="{{ url_for('index') }}">Clear search</a></div>
+    {% elif database_ready %}<div class="empty-state"><span class="empty-mark">＋</span><h3>No student records yet</h3><p>Use the form to add the first record. Reports update from saved data.</p></div>
+    {% else %}<div class="empty-state"><h3>Waiting for MySQL</h3><p>Check the connection details above and restart the application.</p></div>{% endif %}
+    {% if students %}<p class="table-note">Showing {{ students|length }} matching record{{ 's' if students|length != 1 else '' }}. Changes are read from MySQL on each page load.</p>{% endif %}
+  </section>
+</section>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% set form_values = form_values|default({}) %}
+<div class="form-grid">
+  <label class="field field-wide"><span>Student name <b>*</b></span><input name="student_name" value="{{ form_values.get('student_name', student.student_name if student else '') }}" maxlength="120" autocomplete="name" required></label>
+  <label class="field"><span>Age <b>*</b></span><input name="age" type="number" min="1" max="120" value="{{ form_values.get('age', student.age if student else '') }}" required></label>
+  <label class="field"><span>Registration number <b>*</b></span><input name="registration_number" value="{{ form_values.get('registration_number', student.registration_number if student else '') }}" maxlength="64" autocomplete="off" required></label>
+  <label class="field"><span>Section <b>*</b></span><input name="section" value="{{ form_values.get('section', student.section if student else '') }}" maxlength="50" required></label>
+  <label class="field"><span>Year of study <b>*</b></span><input name="study_year" type="number" min="1" max="12" value="{{ form_values.get('study_year', student.study_year if student else '') }}" required></label>
+  <label class="field field-wide"><span>Department <b>*</b></span><input name="department" value="{{ form_values.get('department', student.department if student else '') }}" maxlength="120" required></label>
+</div>

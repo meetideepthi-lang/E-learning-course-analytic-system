@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Student report{% endblock %}
+{% block content %}
+<section class="page-heading"><div><p class="eyebrow">REGISTRAR WORKSPACE <span>/</span> LIVE REPORT</p><h1>Student composition</h1><p class="heading-copy">An aggregate snapshot calculated from student records currently stored in MySQL.</p></div><a class="button button-secondary" href="{{ url_for('report') }}"><span aria-hidden="true">↻</span> Refresh report</a></section>
+<div class="report-meta"><span><i class="status-dot"></i> Source: MySQL student records</span><span>Generated {{ generated_at }}</span></div>
+{% if not database_ready %}<div class="report-empty"><h2>Live report unavailable</h2><p>Connect MySQL to calculate a report. Check the connection details on the directory page.</p><a href="{{ url_for('index') }}">Back to directory</a></div>
+{% elif total == 0 %}<div class="report-empty"><h2>No records to analyze</h2><p>Add student records first. This report updates from saved database data each time it is opened or refreshed.</p><a href="{{ url_for('index') }}">Add students</a></div>
+{% else %}
+<section class="metric-grid report-metrics" aria-label="Report summary">
+  <article class="metric metric-dark"><span>Student records</span><strong>{{ '{:,}'.format(total) }}</strong><small>Current database rows</small></article>
+  <article class="metric"><span>Departments</span><strong>{{ '{:,}'.format(department_count) }}</strong><small>Distinct departments</small></article>
+  <article class="metric"><span>Sections</span><strong>{{ '{:,}'.format(section_count) }}</strong><small>Distinct section labels</small></article>
+  <article class="metric"><span>Average age</span><strong>{{ '%.1f'|format(average_age) }}</strong><small>Median {{ '%.1f'|format(median_age) }} years</small></article>
+</section>
+<section class="report-chart-panel"><div class="panel-heading"><div><p class="eyebrow">AGGREGATE DISTRIBUTIONS</p><h2>Who is represented</h2></div><span class="panel-index">02</span></div><img class="report-chart" src="data:image/png;base64,{{ chart }}" alt="Charts showing student counts by department, year of study, and age distribution"><p class="report-disclaimer">Counts and age summaries describe the records entered. They do not measure learning, performance, or student ability. Names and registration numbers are excluded from this report.</p></section>
+<section class="summary-grid">
+  <article class="summary-panel"><p class="eyebrow">DEPARTMENT</p><h2>Students by department</h2><div class="summary-table"><div class="summary-row summary-head"><span>Department</span><span>Students</span></div>{% for row in department_summary %}<div class="summary-row"><span>{{ row.department }}</span><strong>{{ row.student_count }}</strong></div>{% endfor %}</div></article>
+  <article class="summary-panel"><p class="eyebrow">YEAR OF STUDY</p><h2>Students by year</h2><div class="summary-table"><div class="summary-row summary-head"><span>Year</span><span>Students</span></div>{% for row in year_summary %}<div class="summary-row"><span>Year {{ row.study_year }}</span><strong>{{ row.student_count }}</strong></div>{% endfor %}</div></article>
+  <article class="summary-panel summary-wide"><p class="eyebrow">SECTION</p><h2>Department and section</h2><div class="summary-table"><div class="summary-row summary-head"><span>Department</span><span>Section</span><span>Students</span></div>{% for row in section_summary %}<div class="summary-row"><span>{{ row.department }}</span><span>{{ row.section }}</span><strong>{{ row.student_count }}</strong></div>{% endfor %}</div></article>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#18352f">
+  <title>{% block title %}Student records{% endblock %} | Fieldnote</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('index') }}" aria-label="Fieldnote home">
+      <span class="brand-mark">F</span>
+      <span><strong>FIELDNOTE</strong><small>STUDENT RECORDS</small></span>
+    </a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a class="{% if request.endpoint in ['index', 'create_student', 'edit_student'] %}is-active{% endif %}" href="{{ url_for('index') }}">Directory</a>
+      <a class="{% if request.endpoint == 'report' %}is-active{% endif %}" href="{{ url_for('report') }}">Reports</a>
+    </nav>
+    <div class="connection-pill {% if database_ready %}is-connected{% else %}is-disconnected{% endif %}">
+      <span class="status-dot"></span>{{ 'MySQL connected' if database_ready else 'MySQL unavailable' }}
+    </div>
+  </header>
+  <main class="page-shell">
+    {% if not database_ready %}
+      <section class="connection-alert" role="status">
+        <div class="alert-symbol">!</div>
+        <div>
+          <strong>Database connection failed</strong>
+          <p>{{ database_error or 'Check that MySQL is running and your .env settings are correct.' }}</p>
+          <span>Start MySQL, verify DB_HOST / DB_PORT / DB_USER / DB_PASSWORD / DB_NAME in .env, then restart this app.</span>
+        </div>
+      </section>
+    {% endif %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}<div class="flash-stack" aria-live="polite">{% for category, message in messages %}<div class="flash flash-{{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="page-footer">
+    <span>Aggregate reporting describes stored records, not student ability.</span>
+    <span>FIELDNOTE · STUDENT ANALYTICS</span>
+  </footer>
+</body>
+</html>
